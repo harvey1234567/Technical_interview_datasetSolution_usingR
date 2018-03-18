@@ -1,0 +1,53 @@
+---
+title: "Solving_Dataproblem_using_R"
+output: html_document
+---
+
+```{r setup, include=FALSE,warning = FALSE,message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+in This We will Try to solve some Data Problems Using R.
+
+```{r cars}
+#importing Data and library
+library(dplyr)
+Diamond<-read.csv("Diamonds.csv")
+head(Diamond)
+```
+
+Question :-
+
+Bucket data into 10 equal bucket using column "carat" such that 
+.	Each bucket has equal no of observation.
+.	First bucket has all least values of carat and last bucket has all max values of carat.
+For each bucket calculate Minimum, Maximum, Average value of "carat", Average value of "depth", number of observation in each bucket.
+
+```{r}
+#sorting data based on carat and making a new dataset
+
+new_data<-Diamond[order(Diamond$carat),]
+
+#creating a new variable to group into 10 buckets based on observations
+new_data$Seq<-seq(1:53940)
+
+#using cut function
+```
+
+Using cut function,creating a new variable with equal rows, this function is very helpful in cases we want to class a continous variable in categorical variable with range. 
+```{r}
+new_data$busketgroup<-cut(new_data$Seq, seq(from =0, to=53940 , by=5394),labels=c(1:10))
+table(new_data$busketgroup)
+```
+calculating min,max,average values and ,making final output format
+```{r}
+Bucket<-unique(new_data$busketgroup)
+Min_carat<-as.data.frame(aggregate(new_data$carat,list(new_data$busketgroup),min))
+Max_carat<-as.data.frame(aggregate(new_data$carat,list(new_data$busketgroup),max))
+avg_carat<-as.data.frame(aggregate(new_data$carat,list(new_data$busketgroup),mean))
+avg_depth<-as.data.frame(aggregate(new_data$depth,list(new_data$busketgroup),mean))
+observation<-new_data %>% group_by(new_data$busketgroup) %>% summarize(n())
+Final_table1<-cbind(Bucket,Min_carat[,2],Max_carat[,2],avg_carat[,2],avg_depth[,2],observation[,2])
+names(Final_table1)<-c("Bucket","min_carat","max_carat","avg_carat","avg_depth","Observations")
+Final_table1
+```
+
